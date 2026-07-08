@@ -1,0 +1,9 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+yt-dlp==2024.10.7
+demucs==4.0.1
+basic-pitch==0.4.0
+music21==9.1.0
+midi2audio==0.1.1
+python-multipart==0.0.12

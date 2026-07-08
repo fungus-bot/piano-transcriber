@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Song → Piano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1d29;
+    --ink-light: #4a5068;
+    --paper: #eef0e6;
+    --ivory: #f7f5ef;
+    --brass: #b8935a;
+    --brass-bright: #d9b374;
+    --crimson: #8b3a3a;
+    --key-gap: 3px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--ink);
+    background-image:
+      radial-gradient(ellipse at top, #232740 0%, var(--ink) 60%);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px 96px;
+  }
+
+  .stage {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    color: var(--ink-light);
+    filter: brightness(1.8);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .keyboard {
+    display: flex;
+    gap: var(--key-gap);
+    height: 46px;
+    margin: 0 auto 36px;
+    max-width: 480px;
+  }
+
+  .key {
+    flex: 1;
+    background: rgba(247, 245, 239, 0.12);
+    border-radius: 0 0 4px 4px;
+    transition: background 0.6s ease, transform 0.3s ease;
+    position: relative;
+  }
+
+  .key.active {
+    background: var(--brass-bright);
+    box-shadow: 0 0 16px rgba(217, 179, 116, 0.5);
+  }
+
+  .key.error { background: var(--crimson); }
+
+  .key-label {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--ink-light);
+    filter: brightness(1.8);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .key.active .key-label, .key.error .key-label { opacity: 1; color: var(--paper); }
+
+  .panel {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  form { display: flex; gap: 10px; }
+
+  input[type=text] {
+    flex: 1;
+    padding: 13px 16px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    background: var(--ivory);
+    color: var(--ink);
+  }
+
+  input[type=text]:focus {
+    outline: none;
+    border-color: var(--brass);
+  }
+
+  button {
+    padding: 13px 22px;
+    border: none;
+    border-radius: 6px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  button:hover:not(:disabled) { background: var(--crimson); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-line {
+    margin-top: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    min-height: 1.2em;
+  }
+
+  .status-line.error { color: var(--crimson); font-weight: 500; }
+
+  .results { margin-top: 28px; display: none; }
+  .results.visible { display: block; }
+
+  .results h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    margin: 0 0 14px;
+  }
+
+  audio { width: 100%; margin-bottom: 20px; }
+
+  .downloads { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+
+  .downloads a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--ink);
+    background: var(--ivory);
+    border: 1px solid rgba(26,29,41,0.15);
+    padding: 8px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+
+  .downloads a:hover { border-color: var(--brass); }
+
+  #osmd-container {
+    background: white;
+    border-radius: 6px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+
+  .hint {
+    font-size: 0.78rem;
+    color: var(--ink-light);
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <header>
+      <h1>Song → Piano</h1>
+      <p>Paste a YouTube link. Get back a piano arrangement — audio and playable sheet music.</p>
+    </header>
+
+    <div class="keyboard" id="keyboard"></div>
+
+    <div class="panel">
+      <form id="job-form">
+        <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" required>
+        <button type="submit" id="submit-btn">Arrange it</button>
+      </form>
+      <div class="status-line" id="status-line"></div>
+      <p class="hint">Longer or busier tracks take a few minutes — this runs real audio-separation and transcription models, not a lookup.</p>
+
+      <div class="results" id="results">
+        <h2>Piano rendition</h2>
+        <audio id="audio-player" controls></audio>
+        <div class="downloads">
+          <a id="dl-midi" href="#" download>Download MIDI</a>
+          <a id="dl-xml" href="#" download>Download MusicXML</a>
+        </div>
+        <h2>Sheet music</h2>
+        <div id="osmd-container"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Point this at your deployed backend.
+  const API_BASE = window.location.origin.includes('localhost')
+    ? 'http://localhost:8000'
+    : window.API_BASE || '';
+
+  const STAGES = ['queued', 'downloading', 'separating', 'transcribing', 'rendering', 'engraving', 'done'];
+
+  const keyboardEl = document.getElementById('keyboard');
+  STAGES.forEach(stage => {
+    const key = document.createElement('div');
+    key.className = 'key';
+    key.dataset.stage = stage;
+    const label = document.createElement('span');
+    label.className = 'key-label';
+    label.textContent = stage;
+    key.appendChild(label);
+    keyboardEl.appendChild(key);
+  });
+
+  function setActiveStage(status, isError) {
+    const idx = STAGES.indexOf(status);
+    document.querySelectorAll('.key').forEach((key, i) => {
+      key.classList.toggle('active', !isError && i <= idx);
+      key.classList.toggle('error', isError && i === idx);
+    });
+  }
+
+  const form = document.getElementById('job-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const statusLine = document.getElementById('status-line');
+  const results = document.getElementById('results');
+
+  let pollTimer = null;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const url = document.getElementById('youtube-url').value.trim();
+    if (!url) return;
+
+    submitBtn.disabled = true;
+    results.classList.remove('visible');
+    statusLine.classList.remove('error');
+    statusLine.textContent = 'Submitting...';
+    setActiveStage('queued', false);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/jobs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ youtube_url: url }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail?.[0]?.msg || body.detail || 'Could not start job');
+      }
+      const data = await res.json();
+      pollJob(data.job_id);
+    } catch (err) {
+      statusLine.classList.add('error');
+      statusLine.textContent = err.message;
+      submitBtn.disabled = false;
+    }
+  });
+
+  function pollJob(jobId) {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs/${jobId}`);
+        const job = await res.json();
+
+        if (job.status === 'error') {
+          clearInterval(pollTimer);
+          setActiveStage(job.status, true);
+          statusLine.classList.add('error');
+          statusLine.textContent = job.error || 'Something went wrong.';
+          submitBtn.disabled = false;
+          return;
+        }
+
+        setActiveStage(job.status, false);
+        statusLine.textContent = `${job.message || job.status} (${job.progress}%)`;
+
+        if (job.status === 'done') {
+          clearInterval(pollTimer);
+          submitBtn.disabled = false;
+          await showResults(jobId);
+        }
+      } catch (err) {
+        clearInterval(pollTimer);
+        statusLine.classList.add('error');
+        statusLine.textContent = 'Lost connection while checking job status.';
+        submitBtn.disabled = false;
+      }
+    }, 2500);
+  }
+
+  async function showResults(jobId) {
+    document.getElementById('audio-player').src = `${API_BASE}/api/jobs/${jobId}/audio`;
+    document.getElementById('dl-midi').href = `${API_BASE}/api/jobs/${jobId}/midi`;
+    document.getElementById('dl-xml').href = `${API_BASE}/api/jobs/${jobId}/musicxml`;
+    results.classList.add('visible');
+
+    const xmlRes = await fetch(`${API_BASE}/api/jobs/${jobId}/musicxml`);
+    const xmlText = await xmlRes.text();
+    const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay('osmd-container', {
+      autoResize: true,
+      backend: 'svg',
+    });
+    await osmd.load(xmlText);
+    osmd.render();
+  }
+</script>
+</body>
+</html>
