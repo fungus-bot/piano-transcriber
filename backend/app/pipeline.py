@@ -50,11 +50,6 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
         "format": "bestaudio/best",
         "outtmpl": out_template,
         "cookiefile": cookies_path,
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["android"],
-            }
-        },
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "wav",
