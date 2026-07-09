@@ -46,15 +46,10 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
     else:
         logger.warning("Cookies file not found at %s — YouTube requests may be blocked.", cookies_path)
 
-    ydl_opts = {
+  ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": out_template,
         "cookiefile": cookies_path,
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["android"],
-            }
-        },
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "wav",
