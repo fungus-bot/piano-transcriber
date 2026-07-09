@@ -35,8 +35,6 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
 
     out_template = str(out_dir / "source.%(ext)s")
 
-    # Render's Secret Files are mounted read-only, but yt-dlp writes back
-    # to the cookie file after use — so copy it to a writable tmp path first.
     cookies_path = config.COOKIES_PATH
     logger.info("Checking for cookies file at: %s (exists=%s)", cookies_path, os.path.exists(cookies_path))
     if cookies_path and os.path.exists(cookies_path):
@@ -46,7 +44,7 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
     else:
         logger.warning("Cookies file not found at %s — YouTube requests may be blocked.", cookies_path)
 
-  ydl_opts = {
+    ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": out_template,
         "cookiefile": cookies_path,
@@ -96,7 +94,6 @@ def separate_stems(audio_path: Path, out_dir: Path) -> Path:
     if result.returncode != 0:
         raise PipelineError(f"Demucs separation failed: {result.stderr[-2000:]}")
 
-    # demucs writes to <out>/<model_name>/<track_name>/no_vocals.wav
     matches = list(separated_root.rglob("no_vocals.wav"))
     if not matches:
         raise PipelineError("Demucs did not produce a no_vocals stem.")
@@ -234,8 +231,6 @@ def run_pipeline(job_id: str):
         logger.exception("Unexpected failure for job %s", job_id)
         job_store.update(job_id, status=JobStatus.ERROR, error=f"Internal error: {e}")
     finally:
-        # Best-effort cleanup of the largest intermediate files to save disk;
-        # keep the final artifacts (midi/wav/musicxml) referenced above.
         for stray in ("source.wav", "separated"):
             p = out_dir / stray
             if p.is_dir():
