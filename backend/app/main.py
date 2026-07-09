@@ -12,7 +12,7 @@ app = FastAPI(title="Piano Transcriber API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://your-actual-frontend.onrender.com",  # replace with your real frontend URL
+        "https://piano-transcriber-1.onrender.com",  # replace with your real frontend URL
     ],
     allow_credentials=True,
     allow_methods=["*"],
