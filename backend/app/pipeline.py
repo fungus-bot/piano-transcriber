@@ -37,6 +37,7 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": out_template,
+        "cookiefile": config.COOKIES_PATH,
         "extractor_args": {
             "youtube": {
                 "player_client": ["android"],
