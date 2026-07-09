@@ -38,17 +38,13 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
     # Render's Secret Files are mounted read-only, but yt-dlp writes back
     # to the cookie file after use — so copy it to a writable tmp path first.
     cookies_path = config.COOKIES_PATH
+    logger.info("Checking for cookies file at: %s (exists=%s)", cookies_path, os.path.exists(cookies_path))
     if cookies_path and os.path.exists(cookies_path):
         writable_cookies_path = "/tmp/cookies.txt"
         shutil.copyfile(cookies_path, writable_cookies_path)
         cookies_path = writable_cookies_path
-    # Render's Secret Files are mounted read-only, but yt-dlp writes back
-    # to the cookie file after use — so copy it to a writable tmp path first.
-    cookies_path = config.COOKIES_PATH
-    if cookies_path and os.path.exists(cookies_path):
-        writable_cookies_path = "/tmp/cookies.txt"
-        shutil.copyfile(cookies_path, writable_cookies_path)
-        cookies_path = writable_cookies_path
+    else:
+        logger.warning("Cookies file not found at %s — YouTube requests may be blocked.", cookies_path)
 
     ydl_opts = {
         "format": "bestaudio/best",
