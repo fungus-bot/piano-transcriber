@@ -223,9 +223,7 @@
 
 <script>
   // Point this at your deployed backend.
-  const API_BASE = window.location.origin.includes('localhost')
-    ? 'http://localhost:8000'
-    : window.API_BASE || '';
+  const API_BASE = "https://your-actual-backend.onrender.com";
 
   const STAGES = ['queued', 'downloading', 'separating', 'transcribing', 'rendering', 'engraving', 'done'];
 
