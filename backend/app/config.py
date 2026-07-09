@@ -5,6 +5,8 @@ Override any of these with environment variables in production.
 import os
 from pathlib import Path
 
+COOKIES_PATH = os.environ.get("YT_COOKIES_PATH", "/etc/secrets/cookies.txt")
+
 # Where per-job working files (audio, midi, xml, etc.) live.
 DATA_DIR = Path(os.environ.get("PT_DATA_DIR", "/tmp/piano-transcriber-jobs"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)

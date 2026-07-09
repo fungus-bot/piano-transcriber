@@ -33,7 +33,11 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
     """Download best-quality audio from a YouTube URL as a wav file."""
     import yt_dlp
 
+<<<<<<< HEAD
     out_template = str(out_dir / "source.%(ext)s")
+=======
+       out_template = str(out_dir / "source.%(ext)s")
+>>>>>>> a41630ee0398c4dcab0c6f9a1f2bc0031b7c3d7a
 
     # Render's Secret Files are mounted read-only, but yt-dlp writes back
     # to the cookie file after use — so copy it to a writable tmp path first.

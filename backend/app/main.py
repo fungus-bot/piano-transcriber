@@ -9,14 +9,16 @@ from . import pipeline
 from .jobs import job_store
 
 app = FastAPI(title="Piano Transcriber API")
-
-# Loosen this to your actual frontend origin(s) in production.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://piano-transcriber-1.onrender.com",  # replace with your real frontend URL
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 YOUTUBE_URL_RE = re.compile(
     r"^(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[\w-]+"
