@@ -9,6 +9,8 @@ from pathlib import Path
 DATA_DIR = Path(os.environ.get("PT_DATA_DIR", "/tmp/piano-transcriber-jobs"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+COOKIES_PATH = os.environ.get("YT_COOKIES_PATH", "/etc/secrets/cookies.txt")
+
 # Path to a General MIDI soundfont used to render MIDI -> audible piano audio.
 # FluidR3_GM.sf2 is a common free choice (~140MB). Download once at build/deploy
 # time (see README) and point this at it.

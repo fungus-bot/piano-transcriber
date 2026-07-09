@@ -34,9 +34,24 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
     import yt_dlp
 
     out_template = str(out_dir / "source.%(ext)s")
+
+    # Render's Secret Files are mounted read-only, but yt-dlp writes back
+    # to the cookie file after use — so copy it to a writable tmp path first.
+    cookies_path = config.COOKIES_PATH
+    if cookies_path and os.path.exists(cookies_path):
+        writable_cookies_path = "/tmp/cookies.txt"
+        shutil.copyfile(cookies_path, writable_cookies_path)
+        cookies_path = writable_cookies_path
+
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": out_template,
+        "cookiefile": cookies_path,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android"],
+            }
+        },
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "wav",
