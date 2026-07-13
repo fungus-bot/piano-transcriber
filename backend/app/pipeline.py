@@ -64,6 +64,13 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
+
+        formats = info.get("formats") or []
+        raise PipelineError(
+            f"DIAGNOSTIC: found {len(formats)} formats. "
+            f"Sample: {[f.get('format_id') for f in formats[:10]]}"
+        )
+
         duration = info.get("duration") or 0
         if duration > config.MAX_DURATION_SECONDS:
             raise PipelineError(
