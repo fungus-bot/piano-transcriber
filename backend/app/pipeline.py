@@ -35,7 +35,7 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
 
     out_template = str(out_dir / "source.%(ext)s")
 
-   cookies_path = config.COOKIES_PATH
+cookies_path = config.COOKIES_PATH
     cookies_exist = os.path.exists(cookies_path) if cookies_path else False
 
     if not cookies_exist:
