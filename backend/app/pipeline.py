@@ -50,6 +50,7 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
 
     ydl_opts = {
         "outtmpl": out_template,
+	"verbose": True,
         "cookiefile": cookies_path,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
