@@ -49,7 +49,6 @@ def download_audio(youtube_url: str, out_dir: Path) -> Path:
     cookies_path = writable_cookies_path
 
     ydl_opts = {
-        "format": "bestaudio/best/best*",
         "outtmpl": out_template,
         "cookiefile": cookies_path,
         "postprocessors": [{
